@@ -1,0 +1,117 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package javaapplication6;
+
+/**
+ *
+ * @author WiLL
+ */
+public class ConverteAmostra {
+
+    private float[] AmostraByteToFloat = null;
+    private float[] AmostraAux = null;
+
+    public ConverteAmostra() { //Construtor
+    }
+
+    public float[] ConverteAmostraParaFloat(byte ByteArray[]) {
+
+        int offset = 0; //ponto inicial da amostra
+        int tam = ByteArray.length / 2; // tamanho da amostra
+
+        //float[] AmostraByteToFloat;
+
+        AmostraByteToFloat = new float[tam];
+        for (int i = offset; i < tam + offset; i++) {
+            float amostra;
+            if (ByteArray[2 * i] < 0) {
+                amostra = 256 - ByteArray[2 * i + 1] + 256 * ByteArray[2 * i];
+
+            } else {
+                amostra = ByteArray[2 * i + 1] + 256 * ByteArray[2 * i];
+
+            }
+            AmostraByteToFloat[i - offset] = amostra;
+        }
+
+//        float soma = 0.0f;
+//        float media = 0.0f;
+        float max = 0.0f;
+//        for (int i = 0; i < AmostraByteToFloat.length; i++) { //Calcula Media
+//            soma = soma + AmostraByteToFloat[i];
+//        }
+        //media = soma / tam;
+//        for (int i = 0; i < AmostraByteToFloat.length; i++) { //Normaliza Sinal
+//            AmostraByteToFloat[i] = AmostraByteToFloat[i] - media;
+//        }
+
+
+        for (int i = 0; i < AmostraByteToFloat.length; i++) { //Encontra maior valor da Amostra
+            if (Math.abs(AmostraByteToFloat[i]) > max) {
+                max = Math.abs(AmostraByteToFloat[i]);
+            }
+        }
+        for (int i = 0; i < AmostraByteToFloat.length; i++) { //Normaliza Amostra
+            AmostraByteToFloat[i] = AmostraByteToFloat[i] / max;
+        }
+
+        //"Limpa Amostra"
+        for (int i = 0; i < AmostraByteToFloat.length; i++) {
+            if (Math.abs(AmostraByteToFloat[i]) <= 0.1) { //Se for menor que 10% é cortado
+                AmostraByteToFloat[i] = 0;
+            }
+        }
+
+        //System.out.println("TAMANHO: " + AmostraByteToFloat.length);
+        for (int i = 0; i < AmostraByteToFloat.length; i++) {
+            if (AmostraByteToFloat[i] != 0 && offset == 0) {
+                for (int j = 0; j <= i; j++) {
+                    if (AmostraByteToFloat[i - j] == 0) {
+                        offset = i - 1;
+                    } else {
+                        offset = 0;
+                    }
+                }
+            }
+        }
+        //System.out.println("Offset: " + offset);
+
+
+        AmostraAux = new float[AmostraByteToFloat.length - offset];
+
+        for (int i = 0; i < AmostraAux.length; i++) {
+            AmostraAux[i] = AmostraByteToFloat[i + offset];
+        }
+
+        //Apaga
+        offset = 0;
+        //Offset Final
+        for (int i = 0; i < AmostraAux.length; i++) {
+            if (AmostraAux[i] == 0 && offset == 0) {
+                for (int j = i; j < AmostraAux.length; j++) {
+                    if (AmostraAux[j] == 0) {
+                        if (offset == 0) {
+                            offset = i + 1;
+                        }
+                    } else {
+                        offset = 0;
+                        break;
+                    }
+                }
+            }
+        }
+
+        //System.out.println("Offset Final: " + offset);
+        if (offset != 0) {
+            AmostraByteToFloat = new float[offset];
+        } else {
+            AmostraByteToFloat = new float[AmostraAux.length];
+        }
+
+        System.arraycopy(AmostraAux, 0, AmostraByteToFloat, 0, offset);
+
+        return AmostraByteToFloat;
+    }
+}
